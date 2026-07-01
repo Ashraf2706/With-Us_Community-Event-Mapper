@@ -10,3 +10,87 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum EventCategory {
+  GARAGE_SALE
+  FARMERS_MARKET
+  MARKET
+  FESTIVAL
+  CULTURAL
+  RELIGIOUS
+  SPORTS
+  UNIVERSITY
+  WORKSHOP
+  CLASS
+  HACKATHON
+  CHARITY
+  FUNDRAISER
+  CONCERT
+  PERFORMANCE
+  FOOD_TRUCK
+  NETWORKING
+  MEETING
+  OTHER
+}
+
+enum RsvpStatus {
+  INTERESTED
+  GOING
+  ATTENDED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  emailVerified DateTime?
+  bio           String?
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  events Event[]
+  rsvps  Rsvp[]
+}
+
+model Event {
+  id                String        @id @default(uuid())
+  title             String
+  description       String
+  category          EventCategory
+  categoryOther     String?
+  startsAt          DateTime
+  endsAt            DateTime?
+  latitude          Float
+  longitude         Float
+  locationName      String
+  showExactLocation Boolean       @default(false)
+  images            String[]
+  capacity          Int?
+  organizerId       String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  organizer User   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  rsvps     Rsvp[]
+
+  @@index([startsAt])
+  @@index([category])
+  @@index([latitude, longitude])
+}
+
+model Rsvp {
+  id        String     @id @default(uuid())
+  userId    String
+  eventId   String
+  status    RsvpStatus
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([eventId])
+} 
