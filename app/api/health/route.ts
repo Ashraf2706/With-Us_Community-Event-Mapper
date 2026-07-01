@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getEnv } from '@/lib/env';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
